@@ -11,6 +11,7 @@ urlpatterns = [
     path("movies/", include("movies.urls")),
     path("admin/", admin.site.urls),
     re_path("", TemplateView.as_view(template_name="index.html"), name=""),
+    # re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

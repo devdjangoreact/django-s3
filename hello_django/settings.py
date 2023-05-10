@@ -148,6 +148,7 @@ if USE_S3 == "True":
     STATIC_LOCATION = "static"
     STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/"
     STATICFILES_STORAGE = "hello_django.storage_backends.StaticStorage"
+    STATIC_ROOT = "hello_django.storage_backends.StaticStorage"
     # s3 public media settings
     PUBLIC_MEDIA_LOCATION = "media"
     MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
@@ -163,9 +164,11 @@ else:
     MEDIA_URL = "/mediafiles/"
     MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "build/static"),)
+# STATICFILES_LOCATION = "build"
 
-STATIC_ROOT = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337", "http://localhost:1337"]
 
@@ -222,9 +225,19 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ORIGIN_WHITELIST = ["http://localhost:3000", 'http://127.0.0.1:8000', 'http://0.0.0.0:8000']
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "http://0.0.0.0:8000"]
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:8000",
+#     "http://0.0.0.0:8000",
+#     "http://localhost:8000",
+# ]
 
-CORS_ORIGIN_WHITELIST = ("http://localhost:3000", "http://127.0.0.1:8000", "http://0.0.0.0:8000")
+# CORS_ORIGIN_WHITELIST = (
+#     "http://localhost:3000",
+#     "http://127.0.0.1:8000",
+#     "http://0.0.0.0:8000",
+#     "http://localhost:8000",
+# )
 
 # SECURE_SSL_REDIRECT=False
 # SESSION_COOKIE_SECURE=False
