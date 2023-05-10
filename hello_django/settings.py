@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import environ
 import os
-
+from datetime import timedelta
 
 env = environ.Env(
     # set casting, default value
@@ -41,11 +41,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "movies",
+    "sections",
+    "drf_yasg",
+    "corsheaders",
     "upload",
     "storages",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # new
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -57,10 +63,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "hello_django.urls"
 
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "build")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -129,7 +136,7 @@ USE_TZ = True
 
 USE_S3 = env("USE_S3")
 
-if USE_S3:
+if USE_S3 == "True":
     # aws settings
     AWS_ACCESS_KEY_ID = env("AWS_S3_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
@@ -150,14 +157,86 @@ if USE_S3:
     PRIVATE_FILE_STORAGE = "hello_django.storage_backends.PrivateMediaStorage"
 
 else:
+    print(USE_S3 == True)
     STATIC_URL = "/staticfiles/"
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     MEDIA_URL = "/mediafiles/"
     MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "build/static"),)
 
+# STATIC_ROOT = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337", "http://localhost:1337"]
 
-DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    "ALGORITHM": "HS256",
+    "VERIFYING_KEY": None,
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    # 'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "JTI_CLAIM": "jti",
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+}
+
+if not DEBUG:
+    REST_FRAMEWORK = {"DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)}
+
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {"api_key": {"type": "apiKey", "in": "header", "name": "Authorization"}},
+}
+
+
+REST_FRAMEWORK = {"DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema"}
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ("rest_framework.renderers.JSONRenderer",)
+
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ORIGIN_WHITELIST = ["http://localhost:3000", 'http://127.0.0.1:8000', 'http://0.0.0.0:8000']
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:8000", "http://0.0.0.0:8000"]
+
+CORS_ORIGIN_WHITELIST = ("http://localhost:3000", "http://127.0.0.1:8000", "http://0.0.0.0:8000")
+
+# SECURE_SSL_REDIRECT=False
+# SESSION_COOKIE_SECURE=False
+# CSRF_COOKIE_SECURE=False
+# CSRF_COOKIE_NAME = "csrftoken"
+
+
+# TERMINAL_SECURE = True  # False to allow http
+# TERMINAL_DEBUG_ONLY = True # False to allow in prod
+TERMINAL_WHITELIST = ["0.0.0.0"]  # List of IPs to be allowed - NB: All allowed by default
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
