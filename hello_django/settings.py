@@ -165,7 +165,7 @@ else:
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "build/static"),)
 
-# STATIC_ROOT = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATIC_ROOT = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337", "http://localhost:1337"]
 
