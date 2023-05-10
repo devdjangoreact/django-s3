@@ -8,7 +8,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("upload/", image_upload, name="upload"),
-    path("movies/", include("movies.urls")),
     path("admin/", admin.site.urls),
     re_path("", TemplateView.as_view(template_name="index.html"), name=""),
     # re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
